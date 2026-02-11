@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "KawaiCam ✨ Cute Photobooth",
@@ -18,13 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="antialiased">{children}</body>
+      <body className={`${jakarta.className} antialiased`}>{children}</body>
     </html>
   );
 }

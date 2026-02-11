@@ -14,6 +14,34 @@ export interface FaceData {
     mouth: { x: number; y: number } | null;
 }
 
+interface FaceLandmark {
+    type: 'eye' | 'nose' | 'mouth';
+    locations: { x: number; y: number }[];
+}
+
+interface DetectedFace {
+    boundingBox: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
+    landmarks: FaceLandmark[];
+}
+
+interface FaceDetector {
+    detect(image: ImageBitmapSource): Promise<DetectedFace[]>;
+}
+
+declare global {
+    interface Window {
+        FaceDetector: {
+            prototype: FaceDetector;
+            new(options?: { maxDetectedFaces?: number; fastMode?: boolean }): FaceDetector;
+        };
+    }
+}
+
 interface UseFaceDetectionReturn {
     faces: FaceData[];
     isSupported: boolean;
@@ -27,7 +55,7 @@ export function useFaceDetection(
     const [faces, setFaces] = useState<FaceData[]>([]);
     const [isSupported, setIsSupported] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
-    const detectorRef = useRef<any>(null);
+    const detectorRef = useRef<FaceDetector | null>(null);
     const rafRef = useRef<number>(0);
     const mountedRef = useRef(true);
 
@@ -63,7 +91,7 @@ export function useFaceDetection(
             const detected = await detectorRef.current.detect(video);
             if (!mountedRef.current) return;
 
-            const faceData: FaceData[] = detected.map((face: any) => {
+            const faceData: FaceData[] = detected.map((face: DetectedFace) => {
                 const box = face.boundingBox;
                 let leftEye: { x: number; y: number } | null = null;
                 let rightEye: { x: number; y: number } | null = null;
